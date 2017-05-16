@@ -53,3 +53,7 @@ google-services.json
 freeline.py
 freeline/
 freeline_project_description.json
+.idea/
+library/libs/
+library/src/androidTest/
+.DS_Store
