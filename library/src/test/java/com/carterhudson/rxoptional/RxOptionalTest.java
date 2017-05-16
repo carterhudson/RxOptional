@@ -17,6 +17,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 public class RxOptionalTest {
 
@@ -29,7 +30,7 @@ public class RxOptionalTest {
             return;
         }
 
-        assertFalse("Expected NPE", false);
+        fail("Expected NPE");
     }
 
     @Test
@@ -63,11 +64,7 @@ public class RxOptionalTest {
 
     @Test
     public void ifPresent_without_value() {
-        RxOptional.ofNullable(null).ifPresent(array -> {
-            assertFalse("Shouldn't be called", false);
-        });
-
-        assertTrue(true);
+        RxOptional.ofNullable(null).ifPresent(array -> fail("Shouldn't be called"));
     }
 
     @Test
@@ -93,7 +90,7 @@ public class RxOptionalTest {
             return;
         }
 
-        assertFalse("Expected NPE", false);
+        fail("Expected NPE");
     }
 
     @Test
@@ -111,7 +108,7 @@ public class RxOptionalTest {
             return;
         }
 
-        assertFalse("Expected NoSuchElementException", false);
+        fail("Expected NoSuchElementException");
     }
 
     @Test
@@ -210,45 +207,35 @@ public class RxOptionalTest {
     }
 
     @Test
-    public void flatOrElse_NPE() {
-        try {
-            RxOptional.ofNullable(null)
-                      .flatOrElse(null)
-                      .toObservable()
-                      .subscribeOn(Schedulers.trampoline())
-                      .test()
-                      .assertEmpty();
-        } catch (NullPointerException e) {
-            assertTrue(true);
-        }
-
-        assertFalse("Expected NPE", false);
+    public void flatOrElse_null() {
+        /* Emits no values, but completes */
+        RxOptional.ofNullable(null)
+                  .flatOrElse(null)
+                  .toObservable()
+                  .subscribeOn(Schedulers.trampoline())
+                  .map(val -> "a")
+                  .test()
+                  .assertValueCount(0)
+                  .assertComplete();
     }
 
     @Test
     public void flatOrElse_ifPresent() {
-        TestObject<TestObject<String>> nullTestObject = new TestObject<>(null);
-        TestObject<TestObject<String>> nestedTestObject = new TestObject<>(new TestObject<>("a"));
-        RxOptional.ofNullable(nullTestObject.getValue())
-                  .flatOrElse(nestedTestObject.getValue())
-                  .map(TestObject::getValue)
-                  .ifPresent(value -> assertEquals(value, "a"));
+        RxOptional.ofNullable(null)
+                  .flatOrElse(RxOptional.ofNullable(null).orElse("a"))
+                  .map(val -> {
+                      assertEquals(val, "a");
+                      return "b";
+                  })
+                  .ifPresent(value -> assertEquals(value, "b"));
     }
 
     @Test
     public void flatOrElse_ifPresent_all_nulls() {
-        try {
-            TestObject<TestObject<String>> nullTestObject = new TestObject<>(null);
-            TestObject<TestObject<String>> nestedTestObject = new TestObject<>(null);
-            RxOptional.ofNullable(nullTestObject.getValue())
-                      .flatOrElse(nestedTestObject.getValue())
-                      .map(TestObject::getValue)
-                      .ifPresent(value -> assertEquals(value, "a"));
-        } catch (NullPointerException e) {
-            assertTrue(true);
-        }
-
-        assertFalse("Expected NPE", false);
+        RxOptional.ofNullable(null)
+                  .flatOrElse(null)
+                  .map(val -> null)
+                  .ifPresent(value -> assertEquals(value, "a"));
     }
 
     @Test
