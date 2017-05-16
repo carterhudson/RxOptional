@@ -5,6 +5,8 @@ import org.junit.Test;
 
 import java.util.NoSuchElementException;
 
+import io.reactivex.schedulers.Schedulers;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
@@ -117,5 +119,28 @@ public class RxOptionalTest {
     public void orElseGet() {
         String value = RxOptional.<String>ofNullable(null).orElseGet(() -> "a");
         assertEquals(value, "a");
+    }
+
+    @Test
+    public void map() {
+        String b = "b";
+        RxOptional<String> B = RxOptional.of(b);
+        RxOptional<String> A = RxOptional.of("a").map(a -> "b");
+        assertEquals(B, A);
+
+        assertEquals(RxOptional.ofNullable(null).map(d -> d), RxOptional.empty());
+    }
+
+    @Test
+    public void flatMap() {
+        String b = "b";
+        RxOptional<String> B = RxOptional.of(b);
+        RxOptional<String> A = RxOptional.of("a").flatMap(a -> RxOptional.of("b"));
+        assertEquals(B, A);
+    }
+
+    @Test
+    public void toObservable() {
+        RxOptional.of("b").toObservable().subscribeOn(Schedulers.trampoline()).test().assertValue("b");
     }
 }

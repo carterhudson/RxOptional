@@ -6,6 +6,7 @@ import com.carterhudson.rxoptional.support.Supplier;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -79,6 +80,10 @@ public class RxOptional<T> {
         }
 
         return RxOptional.of(Single.just(value).map(mapper).blockingGet());
+    }
+
+    public Observable<T> toObservable() {
+        return value != null ? Observable.just(value) : Observable.empty();
     }
 
     public <U> RxOptional<U> flatMap(Function<? super T, ? extends RxOptional<U>> mapper) {
