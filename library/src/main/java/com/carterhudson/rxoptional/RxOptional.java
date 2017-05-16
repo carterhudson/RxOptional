@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
@@ -96,6 +97,22 @@ public class RxOptional<T> {
     }
 
     /**
+     * Performs a terminal action if the value is not present
+     *
+     * @param action - the terminal action to be performed
+     */
+    public void ifNotPresent(Action action) {
+        if (value == null) {
+            requireNonNull(action);
+            try {
+                action.run();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
      * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#map-java.util.function.Function-">Oracle docs</a>
      */
     public <U> RxOptional<U> map(Function<? super T, ? extends U> mapper) {
@@ -129,14 +146,14 @@ public class RxOptional<T> {
     }
 
     /**
-     * A flat implementation of {@link #orElse(Object)} that returns an RxOptional describing a wrapped value.
+     * A fluent implementation of {@link #orElse(Object)} that returns an RxOptional describing a wrapped value.
      * This is useful for instances where you'd like to provide an else-value, but chain fluently from it with
      * other RxOptional supported operations.
      *
      * @param other - the value to be described by the returned RxOptional
      * @return - an RxOptional describing the else-value
      */
-    public RxOptional<T> flatOrElse(T other) {
+    public RxOptional<T> fluentOrElse(T other) {
         return RxOptional.ofNullable(orElse(other));
     }
 
