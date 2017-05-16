@@ -3,6 +3,10 @@ package com.carterhudson.rxoptional;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import io.reactivex.schedulers.Schedulers;
@@ -142,5 +146,47 @@ public class RxOptionalTest {
     @Test
     public void toObservable() {
         RxOptional.of("b").toObservable().subscribeOn(Schedulers.trampoline()).test().assertValue("b");
+    }
+
+    @Test
+    public void iterables() {
+        /* Observing a list-backed optional; performs as expected */
+        List<String> stringList = new ArrayList<>(Arrays.asList("a", "b", "c"));
+        RxOptional.ofNullable(stringList)
+                  .toObservable()
+                  .subscribeOn(Schedulers.trampoline())
+                  .flatMapIterable(strings -> strings)
+                  .flatMap(string -> RxOptional.ofNullable(string).toObservable())
+                  .filter(string -> string != null)
+                  .toList()
+                  .test()
+                  .assertValue(list -> list.size() == 3)
+                  .assertValue(stringList);
+
+        /* Observing empty list and performing flat map propagates empties downstream */
+        stringList.clear();
+        RxOptional.ofNullable(stringList)
+                  .toObservable()
+                  .subscribeOn(Schedulers.trampoline())
+                  .flatMapIterable(strings -> strings)
+                  .flatMap(string -> RxOptional.ofNullable(string).toObservable())
+                  .filter(string -> string != null)
+                  .toList()
+                  .test()
+                  .assertValue(list -> list.size() == 0)
+                  .assertValue(stringList);
+
+        /* Observing null-backed optional propagates downstream as empties*/
+        stringList = null;
+        RxOptional.ofNullable(stringList)
+                  .toObservable()
+                  .subscribeOn(Schedulers.trampoline())
+                  .flatMapIterable(strings -> strings)
+                  .flatMap(string -> RxOptional.ofNullable(string).toObservable())
+                  .filter(string -> string != null)
+                  .toList()
+                  .test()
+                  .assertValue(list -> list.size() == 0)
+                  .assertValue(Collections.emptyList());
     }
 }
