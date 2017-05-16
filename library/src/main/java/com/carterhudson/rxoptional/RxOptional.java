@@ -137,7 +137,7 @@ public class RxOptional<T> {
      * @return - an RxOptional describing the else-value
      */
     public RxOptional<T> flatOrElse(T other) {
-        return RxOptional.of(orElse(other));
+        return RxOptional.ofNullable(orElse(other));
     }
 
     /**
