@@ -4,7 +4,7 @@ apply plugin: 'me.tatarka.retrolambda'
 ext {
     PUBLISH_GROUP_ID = 'com.carterhudson.rxoptional'
     PUBLISH_ARTIFACT_ID = 'rxoptional'
-    PUBLISH_VERSION = '0.0.4'
+    PUBLISH_VERSION = '0.0.5'
 }
 
 android {
@@ -13,8 +13,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 1
-        versionName "0.0.4"
+        versionCode 5
+        versionName "0.0.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
