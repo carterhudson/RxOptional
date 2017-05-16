@@ -149,7 +149,7 @@ public class RxOptionalTest {
     }
 
     @Test
-    public void iterables() {
+    public void valid_iterable() {
         /* Observing a list-backed optional; performs as expected */
         List<String> stringList = new ArrayList<>(Arrays.asList("a", "b", "c"));
         RxOptional.ofNullable(stringList)
@@ -162,9 +162,12 @@ public class RxOptionalTest {
                   .test()
                   .assertValue(list -> list.size() == 3)
                   .assertValue(stringList);
+    }
 
+    @Test
+    public void empty_iterable() {
         /* Observing empty list and performing flat map propagates empties downstream */
-        stringList.clear();
+        List<String> stringList = new ArrayList<>();
         RxOptional.ofNullable(stringList)
                   .toObservable()
                   .subscribeOn(Schedulers.trampoline())
@@ -175,9 +178,12 @@ public class RxOptionalTest {
                   .test()
                   .assertValue(list -> list.size() == 0)
                   .assertValue(stringList);
+    }
 
+    @Test
+    public void null_iterable() {
         /* Observing null-backed optional propagates downstream as empties*/
-        stringList = null;
+        List<String> stringList = null;
         RxOptional.ofNullable(stringList)
                   .toObservable()
                   .subscribeOn(Schedulers.trampoline())
@@ -188,5 +194,32 @@ public class RxOptionalTest {
                   .test()
                   .assertValue(list -> list.size() == 0)
                   .assertValue(Collections.emptyList());
+    }
+
+    @Test
+    public void flatOrElse() {
+        /* Stay in the optional monad */
+        RxOptional.ofNullable(null)
+                  .flatOrElse("a")
+                  .toObservable()
+                  .subscribeOn(Schedulers.trampoline())
+                  .test()
+                  .assertValue("a");
+    }
+
+    @Test
+    public void flatOrElse_NPE() {
+        try {
+            RxOptional.ofNullable(null)
+                      .flatOrElse(null)
+                      .toObservable()
+                      .subscribeOn(Schedulers.trampoline())
+                      .test()
+                      .assertEmpty();
+        } catch (NullPointerException e) {
+            assertTrue(true);
+        }
+
+        assertFalse("Expected NPE", false);
     }
 }
