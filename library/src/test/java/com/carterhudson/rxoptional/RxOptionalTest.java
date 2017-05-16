@@ -1,6 +1,8 @@
 package com.carterhudson.rxoptional;
 
 
+import com.carterhudson.rxoptional.utils.objects.TestObject;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -221,5 +223,41 @@ public class RxOptionalTest {
         }
 
         assertFalse("Expected NPE", false);
+    }
+
+    @Test
+    public void flatOrElse_ifPresent() {
+        TestObject<TestObject<String>> nullTestObject = new TestObject<>(null);
+        TestObject<TestObject<String>> nestedTestObject = new TestObject<>(new TestObject<>("a"));
+        RxOptional.ofNullable(nullTestObject.getValue())
+                  .flatOrElse(nestedTestObject.getValue())
+                  .map(TestObject::getValue)
+                  .ifPresent(value -> assertEquals(value, "a"));
+    }
+
+    @Test
+    public void flatOrElse_ifPresent_all_nulls() {
+        try {
+            TestObject<TestObject<String>> nullTestObject = new TestObject<>(null);
+            TestObject<TestObject<String>> nestedTestObject = new TestObject<>(null);
+            RxOptional.ofNullable(nullTestObject.getValue())
+                      .flatOrElse(nestedTestObject.getValue())
+                      .map(TestObject::getValue)
+                      .ifPresent(value -> assertEquals(value, "a"));
+        } catch (NullPointerException e) {
+            assertTrue(true);
+        }
+
+        assertFalse("Expected NPE", false);
+    }
+
+    @Test
+    public void flatOrElse_ifPresent_inner_optional() {
+        TestObject<TestObject<String>> nullTestObject = new TestObject<>(null);
+        TestObject<TestObject<String>> nestedTestObject = new TestObject<>(null);
+        RxOptional.ofNullable(nullTestObject.getValue())
+                  .flatOrElse(nestedTestObject.getValue())
+                  .map(testObj -> RxOptional.ofNullable(testObj.getValue()).orElse("a"))
+                  .ifPresent(value -> assertEquals(value, "a"));
     }
 }
