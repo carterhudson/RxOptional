@@ -1,8 +1,6 @@
 package com.carterhudson.rxoptional;
 
 
-import com.carterhudson.rxoptional.utils.objects.TestObject;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -196,10 +194,10 @@ public class RxOptionalTest {
     }
 
     @Test
-    public void flatOrElse() {
+    public void fluentOrElse() {
         /* Stay in the optional monad */
         RxOptional.ofNullable(null)
-                  .flatOrElse("a")
+                  .fluentOrElse("a")
                   .toObservable()
                   .subscribeOn(Schedulers.trampoline())
                   .test()
@@ -207,10 +205,10 @@ public class RxOptionalTest {
     }
 
     @Test
-    public void flatOrElse_null() {
+    public void fluentOrElse_null() {
         /* Emits no values, but completes */
         RxOptional.ofNullable(null)
-                  .flatOrElse(null)
+                  .fluentOrElse(null)
                   .toObservable()
                   .subscribeOn(Schedulers.trampoline())
                   .map(val -> "a")
@@ -220,9 +218,9 @@ public class RxOptionalTest {
     }
 
     @Test
-    public void flatOrElse_ifPresent() {
+    public void fluentOrElse_ifPresent() {
         RxOptional.ofNullable(null)
-                  .flatOrElse(RxOptional.ofNullable(null).orElse("a"))
+                  .fluentOrElse(RxOptional.ofNullable(null).orElse("a"))
                   .map(val -> {
                       assertEquals(val, "a");
                       return "b";
@@ -231,20 +229,48 @@ public class RxOptionalTest {
     }
 
     @Test
-    public void flatOrElse_ifPresent_all_nulls() {
+    public void fluentOrElse_map_ifPresent() {
         RxOptional.ofNullable(null)
-                  .flatOrElse(null)
-                  .map(val -> null)
-                  .ifPresent(value -> assertEquals(value, "a"));
+                  .fluentOrElse(null)
+                  .map(val -> {
+                      fail("shouldn't be called");
+                      return val;
+                  })
+                  .ifPresent(value -> fail("Shouldn't be called"));
     }
 
     @Test
-    public void flatOrElse_ifPresent_inner_optional() {
-        TestObject<TestObject<String>> nullTestObject = new TestObject<>(null);
-        TestObject<TestObject<String>> nestedTestObject = new TestObject<>(null);
-        RxOptional.ofNullable(nullTestObject.getValue())
-                  .flatOrElse(nestedTestObject.getValue())
-                  .map(testObj -> RxOptional.ofNullable(testObj.getValue()).orElse("a"))
-                  .ifPresent(value -> assertEquals(value, "a"));
+    public void ifNotPresent() {
+        RxOptional.ofNullable(null)
+                  .ifPresent(o -> fail("Shouldn't be called"))
+                  .ifNotPresent(() -> assertTrue("Should be called", true));
+    }
+
+    @Test
+    public void ifNotPresent_fluentOrElse_null() {
+        RxOptional.ofNullable(null)
+                  .fluentOrElse(null)
+                  .ifPresent(o -> fail("Shouldn't be called"))
+                  .ifNotPresent(() -> assertTrue("Should be called", true));
+    }
+
+    @Test
+    public void ifNotPresent_fluentOrElse_non_null() {
+        RxOptional.ofNullable(null)
+                  .fluentOrElse("b")
+                  .ifPresent(o -> assertEquals(o, "b"))
+                  .ifNotPresent(() -> fail("Shouldn't be called"));
+    }
+
+    @Test
+    public void ifNotPresent_fluentOrElse_map_null() {
+        RxOptional.ofNullable(null)
+                  .fluentOrElse(null)
+                  .map(o -> {
+                      fail("Shouldn't be called");
+                      return o;
+                  })
+                  .ifPresent(o -> fail("Shouldn't be called"))
+                  .ifNotPresent(() -> assertTrue("Success", true));
     }
 }
