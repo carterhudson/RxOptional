@@ -2,7 +2,7 @@
 
 ### An implementation of Java 8's Optional&lt;T> using RxJava 2 &amp; Java 7
 
-I made this so I could use Optionals while developing for Android. Just a wrapper around some Rx functionality that acts like a Java 8 Optional. Supports `toObservable()` so you don't have to break the chain to do more robust Rx operations. Check tests for examples.
+I made this so I could use Optionals while developing for Android. It's just a wrapper around some Rx functionality that acts like a Java 8 Optional. Supports `toObservable()` so you don't have to break the chain to do more robust Rx operations. Check tests for examples.
 
 *NOTE: This is experimental and subject to frequent updates without warning. I would recommend specifying a specific version in your gradle file*
 
