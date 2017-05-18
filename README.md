@@ -2,7 +2,9 @@
 
 ### An implementation of Java 8's Optional&lt;T> using RxJava 2 &amp; Java 7
 
-Don't want to include the whole of Guava to be able to use their Optionals? Do you find Java 8's Optional implementation more pleasing that Guava's? Do you develop for Android? This might be useful to you.
+I made this so I could use Optionals while developing for Android. Just a wrapper around some Rx functionality that acts like a Java 8 Optional. Supports `toObservable()` so you don't have to break the chain to do more robust Rx operations. Check tests for examples.
+
+*NOTE: This is experimental and subject to frequent updates without warning. I would recommend specifying a specific version in your gradle file*
 
 ## License
 ```
