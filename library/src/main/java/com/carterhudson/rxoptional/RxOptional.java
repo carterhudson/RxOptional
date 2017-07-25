@@ -1,107 +1,80 @@
 package com.carterhudson.rxoptional;
 
-
-import com.carterhudson.rxoptional.support.Supplier;
-
 import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
+
+import io.reactivex.Maybe;
+import io.reactivex.MaybeObserver;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
-import io.reactivex.functions.Predicate;
 
 import static java.util.Objects.requireNonNull;
 
-public class RxOptional<T> {
-    private final T value;
+public class RxOptional<T> extends Maybe<T> {
+    private static RxOptional<?> EMPTY = new RxOptional<>();
 
-    private static final RxOptional<?> EMPTY = new RxOptional();
+    private T value;
+    private Maybe<T> delegate;
 
     private RxOptional() {
-        this.value = null;
+        value = null;
     }
 
     private RxOptional(T value) {
         this.value = value;
+        delegate = Maybe.fromCallable(() -> value);
     }
 
-    /**
-     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#empty--">Oracle docs</a>
-     */
+    public static <T> RxOptional<T> maybe(T value) {
+        return new RxOptional<>(value);
+    }
+
+    @SuppressWarnings("unchecked")
     public static <T> RxOptional<T> empty() {
-        //noinspection unchecked
         return (RxOptional<T>) EMPTY;
     }
 
-    /**
-     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#of-T-">Oracle docs</a>
-     */
-    public static <T> RxOptional<T> of(T value) {
-        return new RxOptional<>(requireNonNull(value));
-    }
-
-    /**
-     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#ofNullable-T-">Oracle docs</a>
-     */
-    public static <T> RxOptional<T> ofNullable(T value) {
-        return value == null ? empty() : of(value);
-    }
-
-    /**
-     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#filter-java.util.function.Predicate-">Oracle docs</a>
-     */
-    public RxOptional<T> filter(Predicate<? super T> predicate) {
+    public RxOptional<T> or(T anotherValue) {
         if (value == null) {
-            return this;
-        }
-
-        requireNonNull(predicate);
-        return Single.just(value)
-                     .filter(predicate)
-                     .map(RxOptional::of)
-                     .defaultIfEmpty(empty())
-                     .blockingGet();
-    }
-
-    /**
-     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#isPresent--">Oracle docs</a>
-     */
-    public boolean isPresent() {
-        return value != null;
-    }
-
-    /**
-     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#get--">Oracle docs</a>
-     */
-    public T get() {
-        if (!isPresent()) {
-            throw new NoSuchElementException();
-        }
-
-        return value;
-    }
-
-    /**
-     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#ifPresent-java.util.function.Consumer-">Oracle docs</a>
-     */
-    public RxOptional<T> ifPresent(Consumer<? super T> consumer) {
-        if (value != null) {
-            requireNonNull(consumer);
-            Single.just(value).subscribe(consumer);
+            return new RxOptional<>(anotherValue);
         }
 
         return this;
     }
 
-    /**
-     * Performs a terminal action if the value is not present
-     *
-     * @param action - the terminal action to be performed
-     */
-    public void ifNotPresent(Action action) {
+    public <U> Observable<U> flatten(Function<T, Iterable<? extends U>> mapper) {
+        return delegate.flattenAsObservable(mapper);
+    }
+
+    public T get() {
+        if (value == null) {
+            throw new NoSuchElementException(
+                "get() called on RxOptional containing null value with no fallback specified");
+        }
+
+        return delegate.doOnError(Throwable::printStackTrace).blockingGet();
+    }
+
+    @Nonnull
+    public RxOptional<T> ifPresent(@Nonnull Consumer<T> consumer) {
+        if (value != null) {
+            requireNonNull(consumer);
+            try {
+                consumer.accept(value);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return this;
+    }
+
+    @Nonnull
+    public RxOptional<T> ifNotPresent(@Nonnull Action action) {
         if (value == null) {
             requireNonNull(action);
             try {
@@ -110,102 +83,68 @@ public class RxOptional<T> {
                 e.printStackTrace();
             }
         }
+
+        return this;
     }
 
-    /**
-     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#map-java.util.function.Function-">Oracle docs</a>
-     */
-    public <U> RxOptional<U> map(Function<? super T, ? extends U> mapper) {
+    @Nonnull
+    public RxOptional<T> mapIfNotPresent(@Nonnull Supplier<T> supplier) {
+        if (value == null) {
+            requireNonNull(supplier);
+            try {
+                return maybe(supplier.get());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return maybe(value);
+    }
+
+    @Nonnull
+    public <R> RxOptional<R> mapIfPresent(@Nonnull Function<T, R> function) {
         if (value != null) {
-            requireNonNull(mapper);
-        } else {
-            return empty();
+            requireNonNull(function);
+            try {
+                return maybe(function.apply(value));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
-        return RxOptional.of(Single.just(value).map(mapper).blockingGet());
+        return empty();
     }
 
-    /**
-     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#flatMap-java.util.function.Function-">Oracle docs</a>
-     */
-    public <U> RxOptional<U> flatMap(Function<? super T, ? extends RxOptional<U>> mapper) {
+    @Nonnull
+    public RxOptional<T> flatMapIfNotPresent(@Nonnull Supplier<RxOptional<T>> supplier) {
+        if (value == null) {
+            requireNonNull(supplier);
+            try {
+                return supplier.get();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return maybe(value);
+    }
+
+    @Nonnull
+    public <R> RxOptional<R> flatMapIfPresent(@Nonnull Function<T, RxOptional<R>> function) {
         if (value != null) {
-            requireNonNull(mapper);
-        } else {
-            return empty();
+            requireNonNull(function);
+            try {
+                return function.apply(value);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
-        return Single.just(value).map(mapper).blockingGet();
+        return empty();
     }
 
-    /**
-     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#orElse-T-">Original docs</a>
-     */
-    public T orElse(T other) {
-        return isPresent() ? value : other;
-    }
-
-    /**
-     * A fluent implementation of {@link #orElse(Object)} that returns an RxOptional describing a wrapped value.
-     * This is useful for instances where you'd like to provide an else-value, but chain fluently from it with
-     * other RxOptional supported operations.
-     *
-     * @param other - the value to be described by the returned RxOptional
-     * @return - an RxOptional describing the else-value
-     */
-    public RxOptional<T> fluentOrElse(T other) {
-        return RxOptional.ofNullable(orElse(other));
-    }
-
-    /**
-     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#orElseGet-java.util.function.Supplier-">Oracle docs</a>
-     */
-    public T orElseGet(Supplier<T> other) {
-        if (!isPresent()) {
-            requireNonNull(other);
-        }
-
-        return orElse(other.get());
-    }
-
-    /**
-     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#equals-java.lang.Object-">Oracle docs</a>
-     */
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof RxOptional)) {
-            return false;
-        }
-
-        RxOptional<?> that = (RxOptional<?>) obj;
-
-        return (!this.isPresent() && !that.isPresent()) || this.get().equals(that.get());
+    protected void subscribeActual(MaybeObserver<? super T> observer) {
+        delegate.subscribe(observer);
     }
-
-    /**
-     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#hashCode--">Oracle docs</a>
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(value);
-    }
-
-    /**
-     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#toString--">Oracle docs</a>
-     */
-    @Override
-    public String toString() {
-        return value == null ? "Optional[empty]" : String.format("Optional[%s]", value.toString());
-    }
-
-    /**
-     * Enters the RxJava 2 monad for more robust reactive extension operations outside the scope of Java 8's implementation
-     *
-     * @return - An observable instance of the value described by the optional
-     */
-    public Observable<T> toObservable() {
-        return value != null ? Observable.just(value) : Observable.empty();
-    }
-
-    // TODO: 5/16/17 single-method support for common combinations of reactive extension combinations
 }
