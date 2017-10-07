@@ -1,3 +1,5 @@
+NOTE: When I get the time, I will be uploading a new implementation powered by Rx's `Maybe` construct. The API is largely the same, so an update _should_ be seamless. 10/7/17
+
 # RxOptional[ ![Download](https://api.bintray.com/packages/carterhudson/RxOptional/RxOptional/images/download.svg) ](https://bintray.com/carterhudson/RxOptional/RxOptional/_latestVersion)
 ### An implementation of Java 8's Optional&lt;T> using RxJava2 & Java 7
 
