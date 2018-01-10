@@ -1,7 +1,8 @@
 package com.carterhudson.rxoptional;
 
+import com.carterhudson.rxoptional.support.Supplier;
+
 import java.util.NoSuchElementException;
-import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 

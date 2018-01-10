@@ -1,20 +1,45 @@
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'com.novoda.bintray-release'
+
+publish {
+    groupId = 'com.carterhudson.tools'
+    artifactId = 'rxoptional'
+    publishVersion = '1.0.0'
+    autoPublish = true
+    desc = 'RxJava2 implementation of Optionals'
+    website = 'https://github.com/carterhudson/RxOptional'
+}
 
 ext {
-    PUBLISH_GROUP_ID = 'com.carterhudson.rxoptional'
-    PUBLISH_ARTIFACT_ID = 'rxoptional'
-    PUBLISH_VERSION = '0.0.6'
+    ARTIFACT_ID = 'rxoptional'
+    VERSION_NAME = '1.0.0'
+    VERSION_CODE = 1
+
+    DESCRIPTION = 'RxJava2 implementation of Optionals'
+
+    SITE_URL = 'https://github.com/carterhudson/RxOptional'
+    GIT_URL = 'https://github.com/carterhudson/RxOptional'
+    GROUP_NAME = 'com.carterhudson.tools'
+
+    MODULE_NAME = 'rxoptional'
+
+    LICENSE = 'Apache 2.0'
+
+    DEVELOPER_ID = 'carterhudson'
+    DEVELOPER_NAME = 'Carter Hudson'
+    DEVELOPER_EMAIL = 'carter.hudson@gmail.com'
+
+    IS_UPLOADING = project.getGradle().startParameter.taskNames.any{it.contains('bintrayUpload')}
 }
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 6
-        versionName "0.0.6"
+        versionCode 7
+        versionName "1.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -27,19 +52,20 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    provided "io.reactivex.rxjava2:rxjava:2.0.6"
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    testCompile 'junit:junit:4.12'
-    compile 'com.google.code.findbugs:jsr305:2.0.1'
-    compile 'com.google.code.findbugs:jsr305:2.0.1'
+    implementation "io.reactivex.rxjava2:rxjava:2.1.7"
+    implementation 'com.android.support:appcompat-v7:25.4.0'
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.google.code.findbugs:jsr305:2.0.1'
+    implementation 'com.google.code.findbugs:jsr305:2.0.1'
 }
-
-apply from: 'https://raw.githubusercontent.com/blundell/release-android-library/master/android-release-aar.gradle'
