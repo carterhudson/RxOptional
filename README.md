@@ -3,7 +3,7 @@
 
 I made this so I could use Optionals while developing for Android. It's just a wrapper around some Rx functionality that acts like a Java 8 Optional. Supports `toObservable()` so you don't have to break the chain to do more robust Rx operations. Check tests for examples.
 
-*NOTE: This is experimental and subject to frequent updates without warning. I would recommend specifying a specific version in your gradle file.*
+Note: 1.0.0 is probably the final, stable release as I've moved on to Kotlin for the most part.
 
 gradle:
 `compile 'com.carterhudson.tools:rxoptional:1.0.0'`
