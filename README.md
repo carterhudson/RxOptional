@@ -6,7 +6,7 @@ I made this so I could use Optionals while developing for Android. It's just a w
 *NOTE: This is experimental and subject to frequent updates without warning. I would recommend specifying a specific version in your gradle file.*
 
 gradle:
-`compile 'com.carterhudson.rxoptional:rxoptional:0.0.6'`
+`compile 'com.carterhudson.tools:rxoptional:1.0.0'`
 
 ## License
 ```
