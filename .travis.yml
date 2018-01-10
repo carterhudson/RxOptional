@@ -8,4 +8,4 @@ android:
         - platform-tools
         - android-23
 script:
-    bash gradlew test
+    - ./gradlew test
