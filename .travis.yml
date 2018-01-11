@@ -7,5 +7,3 @@ android:
         - build-tools-23.0.1
         - platform-tools
         - android-23
-script:
-    - ./gradlew test
