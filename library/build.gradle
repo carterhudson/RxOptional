@@ -34,10 +34,10 @@ ext {
 }
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 27
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode 7
         versionName "1.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -64,8 +64,7 @@ dependencies {
     })
 
     implementation "io.reactivex.rxjava2:rxjava:2.1.7"
-    implementation 'com.android.support:appcompat-v7:25.4.0'
+    implementation 'com.android.support:appcompat-v7:27.0.2'
     testImplementation 'junit:junit:4.12'
-    implementation 'com.google.code.findbugs:jsr305:2.0.1'
     implementation 'com.google.code.findbugs:jsr305:2.0.1'
 }
