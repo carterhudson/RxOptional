@@ -1,4 +1,5 @@
 [ ![Download](https://api.bintray.com/packages/carterhudson/maven/rxoptional/images/download.svg) ](https://bintray.com/carterhudson/maven/rxoptional/_latestVersion)
+[![Build Status](https://travis-ci.org/carterhudson/RxOptional.svg?branch=master)](https://travis-ci.org/carterhudson/RxOptional)
 ### An implementation of Java 8's Optional&lt;T> using RxJava2 & Java 7
 
 I made this so I could use Optionals while developing for Android. It's just a wrapper around some Rx functionality that acts like a Java 8 Optional. Supports `toObservable()` so you don't have to break the chain to do more robust Rx operations. Check tests for examples.
