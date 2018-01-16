@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/carterhudson/RxOptional.svg?branch=master)](https://travis-ci.org/carterhudson/RxOptional)
 ### An implementation of Java 8's Optional&lt;T> using RxJava2 & Java 7
 
-I made this so I could use Optionals while developing for Android. It's just a wrapper around some Rx functionality that acts like a Java 8 Optional. Supports `toObservable()` so you don't have to break the chain to do more robust Rx operations. Check tests for examples.
+Wraps `Maybe` with an an API that mimics Java 8's optionals with some functional flavor added in.
 
 Note: 1.0.0 is probably the final, stable release as I've moved on to Kotlin for the most part.
 
